@@ -1,0 +1,23 @@
+# MSTR Intelligence Bot v2.0 — Dependencias
+# Instalar: pip install -r requirements.txt
+
+# ── Framework web ─────────────────────────────────────────────
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# ── HTTP ──────────────────────────────────────────────────────
+requests==2.31.0
+urllib3==2.1.0
+
+# ── Datos y ML ────────────────────────────────────────────────
+pandas==2.1.4
+numpy==1.26.2
+openpyxl==3.1.2
+
+# ── Supabase ──────────────────────────────────────────────────
+supabase==2.3.4
+python-dotenv==1.0.0
+
+# ── Utilidades ────────────────────────────────────────────────
+python-dateutil==2.8.2
+gunicorn==21.2.0
