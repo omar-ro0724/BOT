@@ -56,7 +56,7 @@ def inicializar_bot():
 
 
 # ── HTML TEMPLATE ─────────────────────────────────────────────────────────────
-HTML = '''<!DOCTYPE html>
+HTML = r'''<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -1230,15 +1230,16 @@ def health():
     return jsonify({'status': 'ok', 'timestamp': datetime.now().isoformat()})
 
 
-# ── MAIN ──────────────────────────────────────────────────────────────────────
-if __name__ == '__main__':
-    inicializar_bot()
+# ── INICIALIZACIÓN AL ARRANCAR (gunicorn + python directo) ───────────────────
+# Se ejecuta cuando gunicorn importa el módulo, ANTES de servir requests
+inicializar_bot()
 
+# ── MAIN (solo para desarrollo local) ────────────────────────────────────────
+if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('FLASK_ENV', 'production') == 'development'
-
-    print(f"\n{'═'*60}")
-    print(f"  🚀 Servidor iniciado — http://0.0.0.0:{port}")
-    print(f"{'═'*60}\n")
-
+    sep = '=' * 60
+    print(f"\n{sep}")
+    print(f"  Servidor en http://0.0.0.0:{port}")
+    print(sep)
     app.run(debug=debug, host='0.0.0.0', port=port, use_reloader=False)
