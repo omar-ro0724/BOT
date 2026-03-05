@@ -9,6 +9,7 @@ import json
 import secrets
 import uuid
 from datetime import datetime
+import threading
 from flask import Flask, render_template_string, request, jsonify, send_file, session
 from bot_mejorado import BotMejorado
 from dotenv import load_dotenv
@@ -1336,9 +1337,10 @@ def health():
     return jsonify({'status': 'ok', 'timestamp': datetime.now().isoformat()})
 
 
-# ── INICIALIZACIÓN AL ARRANCAR (gunicorn + python directo) ───────────────────
-# Se ejecuta cuando gunicorn importa el módulo, ANTES de servir requests
-inicializar_bot()
+# ── INICIALIZACIÓN EN BACKGROUND (no bloquea el healthcheck) ────────────────
+# Railway necesita que /health responda en <30s — el bot conecta en paralelo
+_init_thread = threading.Thread(target=inicializar_bot, daemon=True)
+_init_thread.start()
 
 # ── MAIN (solo para desarrollo local) ────────────────────────────────────────
 if __name__ == '__main__':
