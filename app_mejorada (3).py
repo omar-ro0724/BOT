@@ -9,7 +9,6 @@ import json
 import secrets
 import uuid
 from datetime import datetime
-import threading
 from flask import Flask, render_template_string, request, jsonify, send_file, session
 from bot_mejorado import BotMejorado
 from dotenv import load_dotenv
@@ -690,109 +689,38 @@ HTML = r'''<!DOCTYPE html>
     }
 
     @media (max-width: 768px) {
-      body { overflow: auto; }
-
-      .topbar {
-        padding: 0 14px;
-        height: auto;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 10px 14px;
-      }
-
-      .status-bar {
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-
+      .topbar { padding: 8px 12px; flex-wrap: wrap; gap: 6px; height: auto; }
+      .status-bar { gap: 8px; flex-wrap: wrap; }
       .stat-badge { font-size: 10px; }
-
-      .quickbar {
-        padding: 8px 12px;
-        gap: 6px;
-      }
-
-      .qbtn {
-        padding: 5px 10px;
-        font-size: 11px;
-      }
-
-      .main {
-        flex-direction: column;
-        height: calc(100vh - 110px);
-      }
-
-      .chat-wrapper {
-        height: 100%;
-      }
-
-      .chat-messages {
-        padding: 14px 14px;
-      }
-
-      .msg-bubble {
-        max-width: 92%;
-        padding: 11px 14px;
-        font-size: 13px;
-      }
-
-      .input-area {
-        padding: 10px 12px 14px;
-      }
-
-      .input-row { gap: 8px; }
-
-      #msgInput {
-        font-size: 14px;
-        padding: 11px 14px;
-      }
-
-      .send-btn {
-        padding: 11px 16px;
-        font-size: 13px;
-      }
-
+      .quickbar { padding: 6px 10px; gap: 5px; }
+      .qbtn { padding: 5px 10px; font-size: 11px; }
+      .main { flex-direction: column; }
+      .chat-messages { padding: 12px 12px; }
+      .msg-bubble { max-width: 93%; padding: 10px 13px; font-size: 13px; }
+      .input-area { padding: 10px 12px 14px; }
+      .input-row { gap: 7px; }
+      #msgInput { font-size: 14px; padding: 10px 13px; }
+      .send-btn { padding: 10px 14px; font-size: 13px; }
       .input-hint { font-size: 10px; }
-
       .empty-state { padding: 30px 14px; }
       .empty-icon { font-size: 36px; }
       .empty-title { font-size: 15px; }
       .empty-sub { font-size: 12px; }
-
       .suggestion-chips { gap: 6px; }
-      .chip { font-size: 11px; padding: 6px 11px; }
-
-      .msg-meta { flex-wrap: wrap; gap: 4px; }
-
-      .modal { width: 95vw; padding: 20px; }
-
+      .chip { font-size: 11px; padding: 5px 10px; }
+      .modal { width: 95vw; padding: 18px; }
       .logo-text { font-size: 13px; }
       .logo-sub { font-size: 9px; }
-      .logo-icon { width: 26px; height: 26px; font-size: 13px; }
     }
 
     @media (max-width: 480px) {
-      .topbar { padding: 8px 10px; }
-
       .status-bar .stat-badge { display: none; }
-
-      .quickbar { gap: 5px; }
       .quick-label { display: none; }
-
-      .qbtn {
-        padding: 5px 9px;
-        font-size: 10px;
-      }
-
-      .send-btn {
-        padding: 11px 13px;
-        font-size: 12px;
-      }
-
-      .msg-bubble { max-width: 97%; }
-
+      .qbtn { padding: 4px 8px; font-size: 10px; }
+      .send-btn { padding: 10px 11px; font-size: 12px; }
+      .msg-bubble { max-width: 98%; }
       .msg-actions { flex-wrap: wrap; }
-      .act-btn { font-size: 10px; padding: 4px 9px; }
+      .act-btn { font-size: 10px; padding: 4px 8px; }
     }
   </style>
 </head>
@@ -1337,10 +1265,9 @@ def health():
     return jsonify({'status': 'ok', 'timestamp': datetime.now().isoformat()})
 
 
-# ── INICIALIZACIÓN EN BACKGROUND (no bloquea el healthcheck) ────────────────
-# Railway necesita que /health responda en <30s — el bot conecta en paralelo
-_init_thread = threading.Thread(target=inicializar_bot, daemon=True)
-_init_thread.start()
+# ── INICIALIZACIÓN AL ARRANCAR (gunicorn + python directo) ───────────────────
+# Se ejecuta cuando gunicorn importa el módulo, ANTES de servir requests
+inicializar_bot()
 
 # ── MAIN (solo para desarrollo local) ────────────────────────────────────────
 if __name__ == '__main__':
